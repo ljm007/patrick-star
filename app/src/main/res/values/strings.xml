@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">派大星</string>
+    <string name="app_fun">自动关闭知乎广告</string>
+    <string name="pkg">com.zhihu.android</string>
+</resources>
