@@ -64,9 +64,30 @@ public class Util {
                 if (temp != null) {
                     if (TextUtils.equals(name, temp.getClassName())) {
                         results.add(temp);
-                    } else {
-                        findByClassAll(temp, name, results);
                     }
+                    findByClassAll(temp, name, results);
+                }
+            }
+        } else {
+            if (TextUtils.equals(name, nodeInfo.getClassName())) {
+                results.add(nodeInfo);
+            }
+        }
+    }
+
+    public static void findByClassAllVisable(AccessibilityNodeInfo nodeInfo, String name, List<AccessibilityNodeInfo> results) {
+        if (!nodeInfo.isVisibleToUser()) {
+            return;
+        }
+        int n = nodeInfo.getChildCount();
+        if (n > 0) {
+            for (int i = 0; i < n; i++) {
+                AccessibilityNodeInfo temp = nodeInfo.getChild(i);
+                if (temp != null && temp.isVisibleToUser()) {
+                    if (TextUtils.equals(name, temp.getClassName())) {
+                        results.add(temp);
+                    }
+                    findByClassAllVisable(temp, name, results);
                 }
             }
         } else {

@@ -27,7 +27,6 @@ public class MyService extends AccessibilityService {
 
     public MyService() {
         mInstance = this;
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> Log.e(TAG, "uncaughtException: ", e));
         handles.add(new ZhihuHandle());
     }
 
