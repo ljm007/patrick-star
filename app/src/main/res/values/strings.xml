@@ -2,4 +2,11 @@
     <string name="app_name">派大星</string>
     <string name="app_fun">自动关闭知乎广告</string>
     <string name="pkg">com.zhihu.android</string>
+    <string name="tv_setting">点击进入无障碍设置</string>
+    <string name="tv_open_service">打开前台服务</string>
+    <string name="tv_close_service">关闭前台服务</string>
+    <string name="toast_please_setting">请先在无障碍设置中打开派大星</string>
+    <string name="notify_title">海绵宝宝</string>
+    <string name="notify_message">嗷，我的朋友*-*</string>
+    <string name="channel_description">派大星前台服务渠道</string>
 </resources>
