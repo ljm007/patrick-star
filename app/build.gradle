@@ -6,7 +6,7 @@ android {
     compileSdk 30
 
     defaultConfig {
-        applicationId "com.example.test"
+        applicationId "com.ljm.auto"
         minSdk 26
         targetSdk 31
         versionCode 1

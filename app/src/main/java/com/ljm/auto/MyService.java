@@ -1,4 +1,4 @@
-package com.example.test;
+package com.ljm.auto;
 
 import android.accessibilityservice.AccessibilityService;
 import android.app.Notification;
@@ -10,8 +10,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.example.test.handle.Handle;
-import com.example.test.handle.ZhihuHandle;
+import com.ljm.auto.handle.Handle;
+import com.ljm.auto.handle.ZhihuHandle;
 
 import java.util.ArrayList;
 import java.util.List;

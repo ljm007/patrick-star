@@ -1,11 +1,11 @@
-package com.example.test.handle;
+package com.ljm.auto.handle;
 
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.example.test.Util;
+import com.ljm.auto.Util;
 
 import java.util.ArrayList;
 import java.util.List;

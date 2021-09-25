@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.test">
+    package="com.ljm.auto">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
@@ -16,7 +16,7 @@
             android:resource="@xml/accessibility_service_config" />
 
         <service
-            android:name=".MyService"
+            android:name="com.ljm.auto.MyService"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -31,7 +31,7 @@
 
         <activity
             android:exported="true"
-            android:name=".MainActivity"
+            android:name="com.ljm.auto.MainActivity"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

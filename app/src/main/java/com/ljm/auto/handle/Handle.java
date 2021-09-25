@@ -1,4 +1,4 @@
-package com.example.test.handle;
+package com.ljm.auto.handle;
 
 import android.accessibilityservice.AccessibilityService;
 import android.view.accessibility.AccessibilityEvent;
