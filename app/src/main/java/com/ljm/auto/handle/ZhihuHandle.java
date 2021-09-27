@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.ljm.auto.Condition;
 import com.ljm.auto.Util;
 
 import java.util.ArrayList;
@@ -26,8 +27,23 @@ public class ZhihuHandle extends Handle {
     private static final String CLASS_IMAGEVIEW = "android.widget.ImageView";
     private static final String CLASS_IMAGE = "android.widget.Image";
     private static final String ID_VIEWPAGER = "com.zhihu.android:id/view_pager_container";
-    private static final String ID_WEBVIEW_CONTAINER = "com.zhihu.android:id/mix_container";
     private static final String ID_SKIP = "com.zhihu.android:id/btn_skip";
+
+    private static final String ID_ANSWER_SCREEN0 = "com.zhihu.android:id/view_content";//回答页面才有的id
+    private static final String ID_ANSWER_SCREEN1 = "com.zhihu.android:id/mix_container";
+
+    private Condition<String> View_CLASS_CONDITION = new Condition<>(CLASS_VIEW, Condition.classCheck);
+    private Condition<String> Recycleview_CLASS_CONDITION = new Condition<>(CLASS_RECYCLEVIEW, Condition.classCheck);
+    private Condition<String> Framelayout_CLASS_CONDITION = new Condition<>(CLASS_FRAMELAYOUT, Condition.classCheck);
+    private Condition<String> ImageView_CLASS_CONDITION = new Condition<>(CLASS_IMAGEVIEW, Condition.classCheck);
+    private Condition<String> Image_CLASS_CONDITION = new Condition<>(CLASS_IMAGE, Condition.classCheck);
+    private Condition<String> ViewPage_ID_CONDITION = new Condition<>(ID_VIEWPAGER, Condition.idCheck);
+    private Condition<String> Skip_ID_CONDITION = new Condition<>(ID_SKIP, Condition.idCheck);
+    private Condition<String> Visible_CONDITION = new Condition<>("", Condition.visibleCheck);
+    private Condition<String> ViewGroup_CONDITION = new Condition<>("", Condition.viewGroupCheck);
+    private Condition<String> Click_CONDITION = new Condition<>("", Condition.canClickCheck);
+    private Condition<String> X_CONDITION = new Condition<>("×", Condition.textCheck);
+
 
     @Override
     public void handle(AccessibilityEvent event) {
@@ -50,7 +66,6 @@ public class ZhihuHandle extends Handle {
         AccessibilityNodeInfo rootInfo = getRootInActiveWindow();
         if (rootInfo == null || !PKG.contentEquals(rootInfo.getPackageName())) return;
         AccessibilityNodeInfo temp = Util.findById(rootInfo, ID_SKIP);
-        Log.d(TAG, "skipKaiPingGuangGao: " + temp);
         if (temp != null) {
             temp.performAction(AccessibilityNodeInfo.ACTION_CLICK);
         }
@@ -59,82 +74,49 @@ public class ZhihuHandle extends Handle {
     private void skipGuangGao() {
         AccessibilityNodeInfo rootInfo = getRootInActiveWindow();
         if (rootInfo == null || !PKG.contentEquals(rootInfo.getPackageName())) return;
-        //找到recycleview的父级
-        AccessibilityNodeInfo temp = Util.findById(rootInfo, ID_VIEWPAGER);
-        if (temp != null) {
+        //找viewPager
+        AccessibilityNodeInfo viewPagerInfo = Util.findById(rootInfo, ID_VIEWPAGER);
+        if (viewPagerInfo != null) {
             //找recycleview
-            Log.d(TAG, "skipGuangGao: find recycleview");
             List<AccessibilityNodeInfo> recycleViews = new ArrayList<>();
-            Util.findByClassAllVisable(temp, CLASS_RECYCLEVIEW, recycleViews);
+//            Util.findAllVisable(recycleViews, viewPagerInfo, Recycleview_CLASS_CONDITION);
+            Util.findByClassAllVisable(viewPagerInfo, CLASS_RECYCLEVIEW, recycleViews);
+            Log.d(TAG, "skipGuangGao: recycleViews " + recycleViews.size());
             for (AccessibilityNodeInfo recyviewInfo : recycleViews) {
                 if (recyviewInfo != null) {
-                    Log.d(TAG, "找到当前recycleview");
                     //查找广告
                     List<AccessibilityNodeInfo> guanggaos = findGuangGao(recyviewInfo);
-                    if (!guanggaos.isEmpty()) {
-                        Log.d(TAG, "有广告");
-                        for (AccessibilityNodeInfo guanggao : guanggaos) {
-                            try {
-                                Log.d(TAG, "关闭广告");
-                                guanggao.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                                guanggao.recycle();
-                            } catch (Exception exception) {
-                                Log.e(TAG, "关闭广告出现异常: ", exception);
-                            }
-                        }
-                    }
+                    //关闭广告
+                    guanggaos.forEach(nodeInfo -> Util.performAction(nodeInfo, AccessibilityNodeInfo.ACTION_CLICK));
                 }
             }
-            temp.recycle();
-        } else {
-            boolean haveGuangGao = false;
+            viewPagerInfo.recycle();
+        } else if (Util.containIds(rootInfo, ID_ANSWER_SCREEN0, ID_ANSWER_SCREEN1)) {
             List<AccessibilityNodeInfo> images = new ArrayList<>();
-            Util.findByClassAllVisable(rootInfo, CLASS_IMAGE, images);
-            Log.d(TAG, "skipGuangGao: images " + images.size());
-            for (AccessibilityNodeInfo image : images) {
-                if (image != null && image.isClickable()) {
-                    haveGuangGao = true;
-                    image.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    image.recycle();
-                }
+            Util.findAllVisable(images, rootInfo, Image_CLASS_CONDITION, Click_CONDITION);
+            if (images.isEmpty()) {
+                Util.findAllVisable(images, rootInfo, View_CLASS_CONDITION, Click_CONDITION, X_CONDITION);
             }
-            if (!haveGuangGao) {
-                images.clear();
-                Util.findByClassAllVisable(rootInfo, CLASS_VIEW, images);
-                if (images != null && !images.isEmpty()) {
-                    for (AccessibilityNodeInfo view : images) {
-                        if (view != null
-                                && TextUtils.equals("×", view.getText())
-                                && view.isClickable()) {
-                            view.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                            view.recycle();
-                        }
-                    }
-                }
-            }
+            images.forEach(nodeInfo -> Util.performAction(nodeInfo, AccessibilityNodeInfo.ACTION_CLICK));
         }
         rootInfo.recycle();
     }
 
     private List<AccessibilityNodeInfo> findGuangGao(AccessibilityNodeInfo nodeInfo) {
         List<AccessibilityNodeInfo> ret = new ArrayList<>();
-        for (int i = 0; i < nodeInfo.getChildCount(); i++) {
-            AccessibilityNodeInfo temp = nodeInfo.getChild(i);
-            if (temp == null) break;
-            if (TextUtils.equals(CLASS_FRAMELAYOUT, temp.getClassName())) {
-                //广告都是帧布局，有多种类型
-                try {
-                    int n = temp.getChild(0).getChildCount();
-                    AccessibilityNodeInfo temp1 = temp.getChild(0).getChild(n - 1);
-                    if (temp1 != null &&
-                            TextUtils.equals(CLASS_IMAGEVIEW, temp1.getClassName()) &&
-                            TextUtils.isEmpty(temp1.getViewIdResourceName())) {
-                        ret.add(temp1);
-                    }
-                } catch (Exception exception) {
-                    Log.e(TAG, "findGuangGao: ", exception);
+        for (AccessibilityNodeInfo temp : Util.findAllByList(Util.toSubViewList(nodeInfo), Framelayout_CLASS_CONDITION)) {
+            try {
+                //广告都是帧布局，最后的view是imageview并且没有id的就是广告关闭按钮
+                int n = temp.getChild(0).getChildCount();
+                AccessibilityNodeInfo temp1 = temp.getChild(0).getChild(n - 1);
+                if (ImageView_CLASS_CONDITION.check(temp1) &&
+                        TextUtils.isEmpty(temp1.getViewIdResourceName())) {
+                    ret.add(temp1);
                 }
+            } catch (Exception exception) {
+                Log.e(TAG, "findGuangGao: ", exception);
             }
+
         }
         return ret;
     }
